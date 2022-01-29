@@ -4,6 +4,9 @@
 		"description": "Starter Kit",
 		"prefix": "main",
 		"body": [
+			"from typing import List",
+			"",
+			"",
 			"def main():",
 			"    pass",
 			"",
