@@ -1,0 +1,15 @@
+{
+	"Main": {
+		"scope": "python",
+		"description": "Starter Kit",
+		"prefix": "main",
+		"body": [
+			"def main():",
+			"    pass",
+			"",
+			"",
+			"if __name__ == '__main__':",
+			"    main()"
+		]
+	}
+}
