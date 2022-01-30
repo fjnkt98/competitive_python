@@ -5,9 +5,10 @@
 		"prefix": "main",
 		"body": [
 			"from typing import List",
+			"from sys import setrecursionlimit",
 			"",
 			"",
-			"sys.setrecursionlimit(10000)",
+			"setrecursionlimit(10000)",
 			"",
 			"def main():",
 			"    pass",
