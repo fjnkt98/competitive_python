@@ -7,6 +7,8 @@
 			"from typing import List",
 			"",
 			"",
+			"sys.setrecursionlimit(10000)",
+			"",
 			"def main():",
 			"    pass",
 			"",
