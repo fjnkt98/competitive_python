@@ -6,6 +6,7 @@
 		"body": [
 			"from typing import List",
 			"import sys",
+			"from array import array",
 			"",
 			"",
 			"sys.setrecursionlimit(10000)",
