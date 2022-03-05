@@ -91,35 +91,46 @@ class EratosthenesSieve:
         return self._is_prime
 
 
+def divisors(N: int) -> List[int]:
+    result: List[int] = []
+
+    i: int = 1
+    while i * i <= N:
+        if N % i == 0:
+            result.append(i)
+
+            if N // i != i:
+                result.append(N // i)
+        i += 1
+
+    return sorted(result)
+
+
+def factorize(N: int) -> List[Tuple[int, int]]:
+    result: List[Tuple[int, int]] = []
+
+    i: int = 2
+    while i * i <= N:
+        if N % i == 0:
+            exp: int = 0
+
+            while N % i == 0:
+                N //= i
+                exp += 1
+
+            result.append((i, exp))
+        i += 1
+
+    if N != 1:
+        result.append((N, 1))
+
+    return result
+
+
 def main():
-    N = int(input())
-    A: List[int] = list(map(int, input().split()))
+    es = EratosthenesSieve(30)
 
-    is_pairwise: bool = True
-    max_a = max(A)
-
-    es = EratosthenesSieve(max_a + 1)
-    count: List[int] = [0 for i in range(max_a + 1)]
-    for a in A:
-        primes = es.factorize(a)
-
-        for p, exp in primes:
-            if count[p] != 0:
-                is_pairwise = False
-                break
-            else:
-                count[p] += 1
-
-    if is_pairwise:
-        print("pairwise coprime")
-    else:
-        gcd: int = A[0]
-        for a in A:
-            gcd = math.gcd(gcd, a)
-        if gcd == 1:
-            print("setwise coprime")
-        else:
-            print("not coprime")
+    print(es.is_prime())
 
 
 if __name__ == "__main__":
