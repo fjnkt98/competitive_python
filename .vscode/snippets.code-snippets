@@ -14,6 +14,7 @@
       "",
       "",
       "def main():",
+      "    $0",
       "    pass",
       "",
       "",
@@ -211,5 +212,20 @@
       "    return result"
     ],
     "description": "Prime Factorize"
+  },
+  "Input a number": {
+    "prefix": "anumber",
+    "body": ["$0: int = int(input())"],
+    "description": "Input one number via standard input"
+  },
+  "Input some numbers": {
+    "prefix": "somenumber",
+    "body": "$1, $0 = map(int, input().split())",
+    "description": "Input some numbers"
+  },
+  "Input 1D Vector": {
+    "prefix": "alist",
+    "body": "$0: List[int] = list(map(int, input().split()))",
+    "description": "Input 1D vector which contains integer as element"
   }
 }
