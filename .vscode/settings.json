@@ -17,5 +17,6 @@
   },
   "editor.formatOnSave": true,
   "eslint.lintTask.enable": true,
-  "python.languageServer": "Pylance"
+  "python.languageServer": "Pylance",
+  "cSpell.words": ["heapify"]
 }
