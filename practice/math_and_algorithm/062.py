@@ -11,36 +11,22 @@ input = sys.stdin.readline
 def main():
     N, K = map(int, input().split())
     A: List[int] = list(map(int, input().split()))
+    A = list(map(lambda x: x - 1, A))
 
-    D: DefaultDict[int, int] = collections.defaultdict(int)
-    A.insert(0, 1)
+    db: List[List[int]] = [[0 for j in range(N)] for i in range(61)]
+    for j in range(N):
+        db[0][j] = A[j]
 
-    answer: int = 1
-    loop_start: int = -1
-    loop_end: int = -1
-    i: int = 0
+    for i in range(1, 61):
+        for j in range(N):
+            db[i][j] = db[i - 1][db[i - 1][j]]
 
-    while K:
-        answer = A[answer]
-        if D[answer] != 0:
-            loop_start = D[answer]
-            loop_end = i
-            K -= 1
-            break
+    answer: int = 0
+    for i in range(61):
+        if K & (1 << i):
+            answer = db[i][answer]
 
-        D[answer] = i
-
-        K -= 1
-        i += 1
-
-    if K > 0:
-        K = K % (loop_end - loop_start)
-
-        while K:
-            answer = A[answer]
-            K -= 1
-
-    print(answer)
+    print(answer + 1)
 
 
 if __name__ == "__main__":
