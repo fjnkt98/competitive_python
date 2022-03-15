@@ -18,5 +18,5 @@
   "editor.formatOnSave": true,
   "eslint.lintTask.enable": true,
   "python.languageServer": "Pylance",
-  "cSpell.words": ["heapify"]
+  "cSpell.words": ["heapify", "ndarray"]
 }
