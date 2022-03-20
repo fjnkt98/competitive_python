@@ -6,7 +6,8 @@
     "body": [
       "from typing import List, Tuple",
       "import sys",
-      "from array import array",
+      "import collections",
+      "import itertools",
       "",
       "",
       "sys.setrecursionlimit(1000000)",
@@ -227,6 +228,11 @@
     "prefix": "alist",
     "body": "$0: List[int] = list(map(int, input().split()))",
     "description": "Input 1D vector which contains integer as element"
+  },
+  "Input a string": {
+    "prefix": "astring",
+    "body": ["$1: str = input().rstrip()"],
+    "description": "Input one string via standard input"
   },
   "BinominalCoefficient": {
     "prefix": "binominal_coefficient",
