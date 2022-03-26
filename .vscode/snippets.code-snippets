@@ -266,5 +266,10 @@
       "        )"
     ],
     "description": "BinominalCoefficient"
+  },
+  "mod1000000007": {
+    "prefix": "mod1000000007",
+    "body": "mod: int = 1000000007",
+    "description": "modulo for competitive programing"
   }
 }
