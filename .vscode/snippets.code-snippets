@@ -147,7 +147,7 @@
       "        factors: List[Tuple[int, int]] = self.factorize(N)",
       " ",
       "        for p, exp in factors:",
-      "            size: int = len(factors)",
+      "            size: int = len(result)",
       "            for i in range(size):",
       "                v: int = 1",
       "                for j in range(exp):",
