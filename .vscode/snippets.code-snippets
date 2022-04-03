@@ -271,5 +271,10 @@
     "prefix": "mod1000000007",
     "body": "mod: int = 1000000007",
     "description": "modulo for competitive programing"
+  },
+  "mod998244353": {
+    "prefix": "mod998244353",
+    "body": "mod: int = 998244353",
+    "description": "modulo for competitive programing"
   }
 }
