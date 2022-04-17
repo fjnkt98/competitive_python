@@ -1,7 +1,10 @@
 from typing import List, Tuple, Callable
 import sys
+import collections
+import itertools
 
-sys.setrecursionlimit(10000)
+
+sys.setrecursionlimit(1000000)
 input = sys.stdin.readline
 
 
@@ -153,14 +156,14 @@ class SegmentTree:
 def main():
     N, Q = map(int, input().split())
     query: List[List[int]] = [list(map(int, input().split())) for i in range(Q)]
-    A: List[int] = [(1 << 31) - 1] * N
 
-    seg = SegmentTree(lambda x, y: min(x, y), lambda: 1 << 60, N, A)
+    seg = SegmentTree(lambda x, y: x + y, lambda: 0, N)
+
     for t, x, y in query:
         if t == 0:
-            seg.update(x, y)
+            seg.update(x - 1, seg.get(x - 1) + y)
         else:
-            print(seg.find(x, y + 1))
+            print(seg.find(x - 1, y))
 
 
 if __name__ == "__main__":
