@@ -1,4 +1,4 @@
-from typing import List, Tuple, Callable, Generic, TypeVar
+from typing import List, Tuple, Deque, Set, Dict, TypeVar, Callable, Generic
 import sys
 import collections
 import itertools
@@ -6,6 +6,7 @@ import itertools
 
 sys.setrecursionlimit(1000000)
 input = sys.stdin.readline
+
 
 # Type of the element of segment tree
 S = TypeVar("S")
@@ -343,18 +344,21 @@ def main():
     query: List[List[int]] = [list(map(int, input().split())) for i in range(Q)]
 
     seg = LazySegmentTree[int, int](
-        lambda x, y: min(x, y),
-        lambda: 1 << 60,
+        lambda x, y: max(x, y),
+        lambda: -(1 << 60),
         lambda f, s: s if f == -1 else f,
         lambda f, g: g if f == -1 else f,
         lambda: -1,
         [(1 << 31) - 1 for i in range(N)],
     )
-    for com, x, y in query:
-        if com == 0:
-            seg.apply(x, y)
+
+    for q in query:
+        if q[0] == 0:
+            s, t, x = q[1:]
+            seg.apply_each(s, t + 1, x)
         else:
-            print(seg.prod(x, y + 1))
+            i = q[1]
+            print(seg.get(i))
 
 
 if __name__ == "__main__":
