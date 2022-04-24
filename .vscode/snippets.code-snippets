@@ -229,6 +229,11 @@
     "body": "$0: List[int] = list(map(int, input().split()))",
     "description": "Input 1D vector which contains integer as element"
   },
+  "Input vector of vector": {
+    "prefix": "listlist",
+    "body": "$1: List[List[int]] = [list(map(int, input().split())) for i in range($0)]",
+    "description": "Input 1D vector which contains 1D vector of integer"
+  },
   "Input a string": {
     "prefix": "astring",
     "body": ["$1: str = input().rstrip()"],
