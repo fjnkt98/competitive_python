@@ -371,7 +371,7 @@
       "            self._propagate(k >> i)",
       "",
       "        # Update value of the element from the leaf to the root.",
-      "        for i in range(i, self._log + 1):",
+      "        for i in range(1, self._log + 1):",
       "            self._update(k >> i)",
       "",
       "    def get(self, k: int) -> S:",
