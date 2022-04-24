@@ -5,160 +5,166 @@ sys.setrecursionlimit(10000)
 input = sys.stdin.readline
 
 
-# Type of the element of segment tree
-S = TypeVar("S")
+# Type of the weight for Weighted Union-Find Tree
+T = TypeVar("T", int, float)
 
 
-class SegmentTree(Generic[S]):
-    """Segment Tree
+class WeightedUnionFind(Generic[T]):
+    """Weighted Union-Find Tree
 
-    Non-recursive, and abstracted segment tree implementation.
+    Weighted Union-Find Tree implementation.
 
     Attributes:
-        -N (int): Number of the elements managed by segment tree.
-        _op (Callable[[S, S], S]): A function object representing the binary operator.
-        _e (Callable[[], int]): A function object which returns identity element.
-        _log (int): The logarithm of size of segment tree base 2.
-        _size (int): Size of the list that representing binary tree object.
-        _data (List[S]): A list of the entities representing segment tree.(1-indexed)
+        _N (int): Number of nodes.
+        _e (T): Identity element of the abelian group. Normally assigned 0.
+        _parent (List[int]): List retaining the parent node of the node.
+        _rank (List[int]): List retaining the rank of the node.
+        _diff_weight (List[T]): List retaining the weight difference
+                                between the root of the subtree.
 
     """
 
-    def __init__(self, op: Callable[[S, S], S], e: Callable[[], S], A: List[S]):
-        self._N = len(A)
-        self._op = op
-        self._e = e
-        self._log: int = (self._N - 1).bit_length()
-        self._size: int = 1 << self._log
-        self._data: List[S] = [self._e()] * (2 * self._size)
-
-        # Initialize leaves with given list A.
-        self._data[self._size : self._size + self._N] = A
-
-        # Update all nodes (not leaf).
-        for i in range(self._size - 1, 0, -1):
-            self._update(i)
-
-    def get(self, k: int) -> S:
-        """Get the value of the specified leaf.
+    def __init__(self, N: int, e: T):
+        """Constructor
 
         Args:
-            k (int): The index of the leaf(0-indexed).
+            N (int): Number of nodes.
+            e (T): Identity element of the abelian group. Normally assigned 0.
+
+        """
+        self._N: int = N
+        self._e: T = e
+        self._parent: List[int] = [i for i in range(N)]
+        self._rank: List[int] = [0 for i in range(N)]
+        self._diff_weight: List[T] = [e for i in range(N)]
+
+    def root(self, v: int) -> int:
+        """Returns the root.
+
+        Returns the root of the subtree to which the node v is belonging.
+        In addition, route-compression is also performed.
+
+        Args:
+            v (int): The index of the specified node.
 
         Returns:
-            S: Value of the specified leaf.
+            int: The index of the root.
 
         """
 
-        return self._data[k + self._size]
+        # Return itself if node v is the root.
+        if self._parent[v] == v:
+            return v
 
-    def set(self, k: int, x: S) -> None:
-        """Set x into the specified leaf.
+        # Get the root recursively.
+        r: int = self.root(self._parent[v])
+        # Accumulate weight.
+        self._diff_weight[v] += self._diff_weight[self._parent[v]]
+        # Update the list.
+        self._parent[v] = r
+
+        # Return the root.
+        return r
+
+    def weight(self, v: int) -> T:
+        """Returns the weight of the node.
+
+        Returns the weight difference between the root and the node.
 
         Args:
-            k (int): The index of the leaf(0-indexed).
+            v (int): The index of the node.
 
         """
+        # Conduct route-compression.
+        self.root(v)
 
-        # Move to the leaf.
-        k += self._size
+        # Return the difference of weight.
+        return self._diff_weight[v]
 
-        # Set the value of the leaf
-        self._data[k] = x
+    def is_same(self, x: int, y: int) -> bool:
+        """Determine if they are in same group.
 
-        # Update value of the element from the leaf to the root.
-        for i in range(1, self._log + 1):
-            self._update(k >> i)
-
-    def prod(self, l: int, r: int) -> S:
-        """Returns op(A[l], ..., A[r - 1]).
-
-        Returns the result of applying the binary operator to the interval [l, r).
+        Determine if they are in same group.
 
         Args:
-            l (int): Left end of the given interval.
-            r (int): Right end of the given interval. it doesn't not include
-                     the right end.
+            x (int): The index of the node.
+            y (int): The index of the other node.
 
         Returns:
-            S: The result.
+            bool: True if x and y are belonging same group. Otherwise, False.
 
         """
+        return self.root(x) == self.root(y)
 
-        # When invalid interval was given
-        if l >= r:
-            return self._e()
+    def unite(self, x: int, y: int, w: T) -> bool:
+        """Merge two nodes.
 
-        # Move to leaf
-        l += self._size
-        r += self._size
-
-        # Variable to hold the left result
-        left_result: S = self._e()
-        # Variable to hold the right result
-        right_result: S = self._e()
-
-        # Find all nodes covering the given interval.
-        while l < r:
-            # If l is right child
-            if l & 1:
-                # Calculate result.
-                left_result = self._op(left_result, self._data[l])
-                # Move to elder brother.
-                l += 1
-
-            # If r is right child
-            if r & 1:
-                # Move to little brother.
-                r -= 1
-                # Calculate result.
-                right_result = self._op(right_result, self._data[r])
-
-            # Move to parent.
-            l >>= 1
-            r >>= 1
-
-        # Return the result.
-        return self._op(left_result, right_result)
-
-    def prod_all(self) -> S:
-        """Returns op(A[0], ..., A[N - 1]).
-
-        Return the result of applying the binary operator to all monoids.
-
-        Returns:
-            S: The operation result.
-
-        """
-        return self._data[1]
-
-    def _update(self, k: int) -> None:
-        """Update the element.
-
-        Update value of the element with the value of the child node.
+        Merge specified two nodes.
 
         Args:
-            k (int): The index of the node (0-indexed).
+            x (int): The index of the node.
+            y (int): The index of the other node.
+            w (T): The weight difference between x and y.
+
+        Returns:
+            bool: False if x and y are already in same group.
 
         """
-        self._data[k] = self._op(self._data[2 * k], self._data[2 * k + 1])
+
+        # Compensate the weight because each root is merged in fact.
+        w += self.weight(x)
+        w -= self.weight(y)
+
+        # Move to each root.
+        x = self.root(x)
+        y = self.root(y)
+
+        # Return false if x and y are already in same group.
+        if x == y:
+            return False
+
+        # Swap so that the rank of x is higher.
+        if self._rank[x] < self._rank[y]:
+            x, y = y, x
+            w = -w
+
+        # If the two trees are the same rank, the rank increases by 1 after merge.
+        if self._rank[x] == self._rank[y]:
+            self._rank[x] += 1
+
+        # Update parent.
+        self._parent[y] = x
+
+        # Update weight.
+        self._diff_weight[y] = w
+
+        # Successfully merged.
+        return True
+
+    def diff(self, x: int, y: int) -> T:
+        return self.weight(y) - self.weight(x)
 
 
 def main():
-    N, Q = map(int, input().split())
-    query: List[List[int]] = [list(map(int, input().split())) for i in range(Q)]
+    N, M = map(int, input().split())
+    info: List[List[int]] = [list(map(int, input().split())) for i in range(M)]
 
-    seg = SegmentTree[int](
-        lambda x, y: min(x, y), lambda: 1 << 60, [(1 << 31) - 1 for i in range(N)]
-    )
+    uf = WeightedUnionFind[int](N, 0)
 
-    for q in query:
-        if q[0] == 0:
-            i, x = q[1:]
-            seg.set(i, x)
+    for l, r, d in info:
+        l -= 1
+        r -= 1
+
+        if uf.is_same(l, r):
+            diff: int = uf.diff(l, r)
+
+            if diff != d:
+                print("No")
+                return
         else:
-            s, t = q[1:]
-            print(seg.prod(s, t + 1))
+            uf.unite(l, r, d)
+
+    print("Yes")
 
 
 if __name__ == "__main__":
