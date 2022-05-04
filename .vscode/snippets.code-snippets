@@ -515,7 +515,7 @@
       "        if l >= r:",
       "            return",
       "",
-      "        # Move to child.",
+      "        # Move to leaf.",
       "        l += self._size",
       "        r += self._size",
       "",
