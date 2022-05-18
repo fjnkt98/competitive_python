@@ -1047,5 +1047,15 @@
       "        return self.weight(y) - self.weight(x)"
     ],
     "description": "WeightedUnionFindTree"
+  },
+  "Coordinate Comperss": {
+    "prefix": "compress",
+    "body": [
+      "def compress(A: List[int]) -> List[int]:",
+      "    X: List[int] = sorted(set(A))",
+      "    D: Dict[int, int] = {x: i for i, x in enumerate(X)}",
+      "    return list(map(lambda x: D[x], A))"
+    ],
+    "description": "Coordinate Comperss"
   }
 }
