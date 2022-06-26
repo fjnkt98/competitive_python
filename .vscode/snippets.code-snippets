@@ -1457,5 +1457,9 @@
       ""
     ],
     "description": "SortedSet"
+  },
+  "VerticalVectorInput": {
+    "prefix": "vlist",
+    "body": "$1, $2 = map(list, zip(*[list(map(int, input().split())) for i in range($3)]))"
   }
 }
