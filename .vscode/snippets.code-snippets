@@ -1461,5 +1461,9 @@
   "VerticalVectorInput": {
     "prefix": "vlist",
     "body": "$1, $2 = map(list, zip(*[list(map(int, input().split())) for i in range($3)]))"
+  },
+  "RunLengthEncoding": {
+    "prefix": "rle",
+    "body": "$1: List[Tuple[str, int]] = [(k, len(list(v))) for k, v in itertools.groupby($2)]"
   }
 }
