@@ -370,14 +370,10 @@ def main():
 
     for i, p in enumerate(P):
         index: int = S.index_right(p)
-        if len(S) == 0 or index == len(S):
-            S.add(p)
-        elif S[index] < p:
-            S.add(p)
-        else:
+        if index < len(S):
             uf.unite(p, S[index])
             S.discard(S[index])
-            S.add(p)
+        S.add(p)
 
         if uf.get_size(p) == K:
             answer[uf.get_root(p)] = i + 1
