@@ -1,7 +1,21 @@
-from typing import List, Tuple
+from typing import (
+    List,
+    Tuple,
+    Deque,
+    Set,
+    Dict,
+    TypeVar,
+    Callable,
+    Generic,
+    Iterable,
+    Iterator,
+    Union,
+)
 import sys
 import collections
 import itertools
+import bisect
+import math
 
 
 sys.setrecursionlimit(1000000)
@@ -10,32 +24,18 @@ input = sys.stdin.readline
 
 def main():
     N, M = map(int, input().split())
-    A: List[int] = list(map(int, input().split()))
-    if not A:
-        print(1)
-        return
+    A: List[int] = [0] + sorted(list(map(int, input().split()))) + [N + 1]
 
-    A.sort()
-    A.insert(0, 0)
-    A.append(N + 1)
-    diff: List[int] = []
-    for i in range(len(A) - 1):
-        d: int = A[i + 1] - A[i] - 1
-        if d != 0:
-            diff.append(d)
+    D: List[int] = [q - p - 1 for p, q in zip(A[:-1], A[1:]) if q - p != 1]
 
-    if len(diff) == 0:
+    if not D:
         print(0)
         return
 
-    k: int = min(diff)
-
+    S: int = min(D)
     answer: int = 0
-    for d in diff:
-        answer += d // k
-
-        if d % k != 0:
-            answer += 1
+    for d in D:
+        answer += (d + S - 1) // S
 
     print(answer)
 

@@ -33,10 +33,7 @@ def main():
     R = [0] + R
     C = [0] + C
 
-    for i in range(1, N):
-        dp[i][i + 2] = R[i] * R[i + 1] * C[i + 1]
-
-    for l in range(3, N + 1):
+    for l in range(2, N + 1):
         for i in range(1, N + 2 - l):
             j: int = i + l
             for k in range(i, j):
