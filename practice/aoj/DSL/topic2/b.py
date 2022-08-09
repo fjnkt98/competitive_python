@@ -1,169 +1,194 @@
-from typing import List, Tuple, Callable
-import sys
-import collections
-import itertools
+from typing import (
+    List,
+    TypeVar,
+    Callable,
+    Generic,
+    Iterator,
+    Union,
+)
+
+# Type of the element of segment tree
+S = TypeVar("S")
 
 
-sys.setrecursionlimit(1000000)
-input = sys.stdin.readline
-
-
-class SegmentTree:
+class SegmentTree(Generic[S]):
     """Segment Tree
 
-    Non-recursive, and abstracted segment tree implementation(not lazy evaluation).
-    You can only use integer as segment tree elements.
+    Non-recursive, and abstracted segment tree implementation.
 
     Attributes:
-        _N (int): Length of target list.
-        _op (Callable[[int, int], int]): A function object representing the binary
-                                         operator.
-        _e (Callable[[], int]): A function object representing identity element.
-        _size (int): Size of the list that representing binary tree object.
-        _data (List[int]): A List of the entity representing segment tree.(1-indexed)
+        -N (int): Number of the elements managed by segment tree.
+        _op (Callable[[S, S], S]): A function object representing the binary operator.
+        _e (Callable[[], int]): A function object which returns identity element.
+        _log (int): The logarithm of size of segment tree base 2.
+                    Also this represent the height of the tree.
+        _size (int): Number of the leaves of the tree
+        _data (List[S]): A list of the entities representing segment tree.(1-indexed)
 
     """
 
-    def __init__(
-        self,
-        op: Callable[[int, int], int],
-        e: Callable[[], int],
-        N: int,
-        A: List[int] = None,
-    ):
+    def __init__(self, op: Callable[[S, S], S], e: Callable[[], S], A: List[S]):
         """Constructor
 
-        Construct segment tree
+        Args:
+            op (Callable[[S, S], S]): A function representing the binary operator.
+            e (Callable[[], S]): A function representing identity element.
+            A (List[S]): A list containing the initial values of leaves.
+        """
+        self._N = len(A)
+        self._op = op
+        self._e = e
+        # Calculate tree size.
+        self._log: int = (self._N - 1).bit_length()
+        self._size: int = 1 << self._log
+        # Segment tree is represented by a list of length 2N
+        # because it's a full binary tree.
+        self._data: List[S] = [self._e()] * (2 * self._size)
+
+        # Initialize leaves with given list A.
+        self._data[self._size : self._size + self._N] = A
+
+        # Update all non-leaf nodes.
+        for i in range(self._size - 1, 0, -1):
+            self._update(i)
+
+    def __setitem__(self, key: int, value: S) -> None:
+        """Point Update: Set the value into the specified leaf.
 
         Args:
-            op (Callable[[int, int], int]): A function object represent the binary
-                                            operator.
-            e (Callable[[], int]): A function object representing identity element.
-            N (int): Length of target list.
-            A (List[int]): (Optional) The target list.
-
+            key (int): The index of the leaf (0-indexed).
+            value (S): The value to apply.
         """
 
-        self._N: int = N
-        self._op: Callable[[int, int], int] = op
-        self._e: Callable[[], int] = e
-        # Minimum power of 2 which is greater than or equal to  N
-        self._size: int = 1 << ((N - 1).bit_length())
-        # Initialize each element of the list with identity element
-        self._data: List[int] = [self._e()] * (2 * self._size)
+        # Type check
+        if not isinstance(key, int):
+            raise TypeError
 
-        # When target list is given, assign and initialize leaves and nodes of
-        # segment tree with its elements
-        if A is not None:
-            for i, a in enumerate(A):
-                self._data[i + self._size] = a
+        # Move to the leaf.
+        key += self._size
 
-            for i in range(self._size - 1, 0, -1):
-                self._data[i] = self._op(self._data[2 * i], self._data[2 * i + 1])
+        # Set the value of the leaf
+        self._data[key] = value
 
-    def update(self, k: int, x: int) -> None:
-        """Update element
+        # Update value of the element from the leaf to the root.
+        for i in range(1, self._log + 1):
+            self._update(key >> i)
 
-        Update value of specified leaf and calculate each nodes which contains
-        specified leaf
+    def __getitem__(self, key: Union[int, slice]) -> S:
+        """Point Acquisition: Get the production of the specified point of interval.
 
         Args:
-            k (int): Index of target leaf (0-indexed)
-            x (int): The value
+            key (int or slice): The index of the leaf, or interval (0-indexed).
+            if key is int, return the value of the leaf.
+            if key is slice, return the product of the interval.
 
+        Return:
+            S: The product.
         """
+        # Type check
+        if isinstance(key, int):
+            # When key is int, return the value of the leaf.
+            return self._data[key + self._size]
+        elif isinstance(key, slice):
+            # Value check
+            l: int = 0 if key.start is None else key.start
+            r: int = self._N if key.stop is None else key.stop
 
-        # Move to the leaf
-        k += self._size
+            if not (0 <= l < self._size and 0 <= r <= self._size):
+                raise IndexError
 
-        # Update value of the leaf
-        self._data[k] = x
-        # Update related nodes
-        while k > 1:
-            # Move to parent
-            k >>= 1
-            # Update value of node
-            self._data[k] = self._op(self._data[2 * k], self._data[2 * k + 1])
+            # WHen key is slice, return the value of the leaf
 
-    def find(self, l: int, r: int) -> int:
-        """Get the value corresponding to a given segment
+            return self.prod(l, r)
 
-        Get the value corresponding to a given segment [l, r) (0-indexed).
+        else:
+            raise TypeError
+
+    def prod(self, l: int, r: int) -> S:
+        """Returns op(A[l], ..., A[r - 1]).
+
+        Returns the product of the interval [l, r).
 
         Args:
-            l (int): Index indicating left end of the segment.
-            r (int): Index indicating right end of the segment.
+            l (int): Left end of the given interval.
+            r (int): Right end of the given interval. it doesn't include
+                     the right end.
 
-        Returns:
-            int: The value corresponding to a given segment.
-
+        Return:
+            S: The product.
         """
 
-        # Result of left side
-        left_result: int = self._e()
-        # Result of right side
-        right_result: int = self._e()
+        # When invalid interval was given
+        if l >= r:
+            return self._e()
 
         # Move to leaf
         l += self._size
         r += self._size
 
-        # Until there are no more not calculated segment
+        # Variable to hold the left result
+        left_result: S = self._e()
+        # Variable to hold the right result
+        right_result: S = self._e()
+
+        # Find all nodes covering the given interval.
         while l < r:
-            # when l is left child
+            # If l is right child
             if l & 1:
+                # Calculate result.
                 left_result = self._op(left_result, self._data[l])
+                # Move to elder sibling.
                 l += 1
 
-            # when r is right child
+            # If r is right child
             if r & 1:
+                # Move to little sibling.
                 r -= 1
+                # Calculate result.
                 right_result = self._op(right_result, self._data[r])
 
-            # Move to parent
+            # Move to parent.
             l >>= 1
             r >>= 1
 
-        # Return the result
+        # Return the result.
         return self._op(left_result, right_result)
 
-    def get_root(self) -> int:
-        """Get the value of the entire segment
+    def _update(self, k: int) -> None:
+        """Update the element.
 
-        Get the value of the entire segment.
-
-        """
-
-        return self._data[1]
-
-    def get(self, i: int) -> int:
-        """Get the value of specified leaf
-
-        Get the value of specified leaf.
-
+        Update value of the element with the value of the child node.
 
         Args:
-            i (int): Index of the leaf(0-indexed).
-
-        Returns:
-            int: Value of the specified leaf.
+            k (int): The index of the node (0-indexed).
 
         """
+        self._data[k] = self._op(self._data[2 * k], self._data[2 * k + 1])
 
-        return self._data[i + self._size]
+    def __len__(self) -> int:
+        """Return the size of tree."""
+        return 2 * self._size
+
+    def __iter__(self) -> Iterator[S]:
+        """Return the leaves iterator corresponding to A"""
+        for d in self._data[self._size : self._size + self._N]:
+            yield d
 
 
 def main():
     N, Q = map(int, input().split())
-    query: List[List[int]] = [list(map(int, input().split())) for i in range(Q)]
+    query = [list(map(int, input().split())) for i in range(Q)]
 
-    seg = SegmentTree(lambda x, y: x + y, lambda: 0, N)
+    seg = SegmentTree[int](lambda a, b: a + b, lambda: 0, [0] * N)
 
     for t, x, y in query:
         if t == 0:
-            seg.update(x - 1, seg.get(x - 1) + y)
+            x -= 1
+            seg[x] = seg[x] + y
         else:
-            print(seg.find(x - 1, y))
+            x -= 1
+            y -= 1
+            print(seg[x : y + 1])
 
 
 if __name__ == "__main__":

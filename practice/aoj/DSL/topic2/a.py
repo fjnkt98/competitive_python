@@ -1,140 +1,121 @@
-from typing import List, Tuple, Callable, Generic, TypeVar
-import sys
-import collections
-import itertools
-
-
-sys.setrecursionlimit(1000000)
-input = sys.stdin.readline
+from typing import (
+    List,
+    TypeVar,
+    Callable,
+    Generic,
+    Iterator,
+    Union,
+)
 
 # Type of the element of segment tree
 S = TypeVar("S")
-# Type of the operator
-F = TypeVar("F")
 
 
-class LazySegmentTree(Generic[S, F]):
-    """Segment Tree with Lazy Propagation
+class SegmentTree(Generic[S]):
+    """Segment Tree
 
-    Non-recursive, and abstracted lazy segment tree implementation.
+    Non-recursive, and abstracted segment tree implementation.
 
     Attributes:
         -N (int): Number of the elements managed by segment tree.
         _op (Callable[[S, S], S]): A function object representing the binary operator.
         _e (Callable[[], int]): A function object which returns identity element.
-        _mapping (Callable[[F, S], S]): A function object representing the mapping.
-                                        mapping() takes the operator f and target
-                                        element s,
-                                        and returns the result.
-        _composition (Callable[[F, F], F]): A function object representing the
-                                            composition of maps.
-                                            composition() takes two operator, and
-                                            returns composited operator.
-        _id (Callable[[], F]): A function object representing identity mapping.
         _log (int): The logarithm of size of segment tree base 2.
-        _size (int): Size of the list that representing binary tree object.
+                    Also this represent the height of the tree.
+        _size (int): Number of the leaves of the tree
         _data (List[S]): A list of the entities representing segment tree.(1-indexed)
-        _lazy (List[F]): A list for lazy propagation. lazy[k] holds the operation
-                         performed in the segment corresponding to the data[k] which
-                         haven't yet been applied to the nodes below the data[k].
 
     """
 
-    def __init__(
-        self,
-        op: Callable[[S, S], S],
-        e: Callable[[], S],
-        mapping: Callable[[F, S], S],
-        composition: Callable[[F, F], F],
-        id: Callable[[], F],
-        A: List[S],
-    ):
+    def __init__(self, op: Callable[[S, S], S], e: Callable[[], S], A: List[S]):
         """Constructor
 
-        Construct segment tree
-
         Args:
-            op (Callable[[S, S], S])
-            e (Callable[[], S])
-            mapping (Callable[[F, S], S])
-            composition (Callable[[F, F], F])
-            id (Callable[[], F])
-            A (List[S])
-
+            op (Callable[[S, S], S]): A function representing the binary operator.
+            e (Callable[[], S]): A function representing identity element.
+            A (List[S]): A list containing the initial values of leaves.
         """
-
-        self._N: int = len(A)
-        self._op: Callable[[S, S], S] = op
-        self._e: Callable[[], S] = e
-        self._mapping: Callable[[F, S], S] = mapping
-        self._composition: Callable[[F, F], F] = composition
-        self._id: Callable[[], F] = id
+        self._N = len(A)
+        self._op = op
+        self._e = e
+        # Calculate tree size.
         self._log: int = (self._N - 1).bit_length()
         self._size: int = 1 << self._log
-        # Initialize each element of the list with identity element.
+        # Segment tree is represented by a list of length 2N
+        # because it's a full binary tree.
         self._data: List[S] = [self._e()] * (2 * self._size)
-        self._lazy: List[F] = [self._id()] * self._size
 
         # Initialize leaves with given list A.
         self._data[self._size : self._size + self._N] = A
 
-        # Update all nodes (not leaf).
+        # Update all non-leaf nodes.
         for i in range(self._size - 1, 0, -1):
             self._update(i)
 
-    def set(self, k: int, x: S) -> None:
-        """Set x into the specified leaf.
+    def __setitem__(self, key: int, value: S) -> None:
+        """Point Update: Set the value into the specified leaf.
 
         Args:
-            k (int): The index of the leaf(0-indexed).
-
+            key (int): The index of the leaf (0-indexed).
+            value (S): The value to apply.
         """
 
-        # Move to the leaf.
-        k += self._size
+        # Type check
+        if not isinstance(key, int):
+            raise TypeError
 
-        # Propagate pending operator from the root to the leaf.
-        for i in range(self._log, 0, -1):
-            self._propagate(k >> i)
+        # Move to the leaf.
+        key += self._size
+
+        # Set the value of the leaf
+        self._data[key] = value
 
         # Update value of the element from the leaf to the root.
-        for i in range(i, self._log + 1):
-            self._update(k >> i)
+        for i in range(1, self._log + 1):
+            self._update(key >> i)
 
-    def get(self, k: int) -> S:
-        """Get the value of the specified leaf.
+    def __getitem__(self, key: Union[int, slice]) -> S:
+        """Point Acquisition: Get the production of the specified point of interval.
 
         Args:
-            k (int): The index of the leaf(0-indexed).
+            key (int or slice): The index of the leaf, or interval (0-indexed).
+            if key is int, return the value of the leaf.
+            if key is slice, return the product of the interval.
 
-        Returns:
-            S: Value of the specified leaf.
-
+        Return:
+            S: The product.
         """
+        # Type check
+        if isinstance(key, int):
+            # When key is int, return the value of the leaf.
+            return self._data[key + self._size]
+        elif isinstance(key, slice):
+            # Value check
+            l: int = 0 if key.start is None else key.start
+            r: int = self._N if key.stop is None else key.stop
 
-        # Move to the leaf.
-        k += self._size
+            if not (0 <= l < self._size and 0 <= r <= self._size):
+                raise IndexError
 
-        # Propagate pending operator from the root to the leaf.
-        for i in range(self._log, 0, -1):
-            self._propagate(k >> i)
+            # WHen key is slice, return the value of the leaf
 
-        # Return the value.
-        return self._data[k]
+            return self.prod(l, r)
+
+        else:
+            raise TypeError
 
     def prod(self, l: int, r: int) -> S:
         """Returns op(A[l], ..., A[r - 1]).
 
-        Returns the result of applying the binary operator to the interval [l, r).
+        Returns the product of the interval [l, r).
 
         Args:
             l (int): Left end of the given interval.
-            r (int): Right end of the given interval. it doesn't not include
+            r (int): Right end of the given interval. it doesn't include
                      the right end.
 
-        Returns:
-            S: The result.
-
+        Return:
+            S: The product.
         """
 
         # When invalid interval was given
@@ -150,30 +131,18 @@ class LazySegmentTree(Generic[S, F]):
         # Variable to hold the right result
         right_result: S = self._e()
 
-        # Propagate pending operator from the root to the leaf
-        # for calculate the production
-        for i in range(self._log, 0, -1):
-            # In the subtree containing the l, when the l is the leftmost node,
-            # don't have to propagate. Because the root of the subtree has all
-            # information of l.
-            if ((l >> i) << i) != l:
-                self._propagate(l >> i)
-            # Same to above.
-            if ((r >> i) << i) != r:
-                self._propagate((r - 1) >> i)
-
         # Find all nodes covering the given interval.
         while l < r:
             # If l is right child
             if l & 1:
                 # Calculate result.
                 left_result = self._op(left_result, self._data[l])
-                # Move to elder brother.
+                # Move to elder sibling.
                 l += 1
 
             # If r is right child
             if r & 1:
-                # Move to little brother.
+                # Move to little sibling.
                 r -= 1
                 # Calculate result.
                 right_result = self._op(right_result, self._data[r])
@@ -184,147 +153,6 @@ class LazySegmentTree(Generic[S, F]):
 
         # Return the result.
         return self._op(left_result, right_result)
-
-    def prod_all(self) -> S:
-        """Returns op(A[0], ..., A[N - 1]).
-
-        Return the result of applying the binary operator to all monoids.
-
-        Returns:
-            S: The operation result.
-
-        """
-        return self._data[1]
-
-    def apply(self, k: int, f: F) -> None:
-        """Apply the mapping to single leaf.
-
-        Apply the mapping to the single leaf with specified index.
-
-        Args:
-            k (int): Index of the leaf(0-indexed).
-            f (F): The value to be acted on the leaf.
-
-        """
-
-        # Move to leaf.
-        k += self._size
-
-        # Propagate pending operator from the root to the leaf.
-        for i in range(self._log, 0, -1):
-            self._propagate(k >> i)
-
-        # Apply the mapping to the leaf.
-        self._data[k] = self._mapping(f, self._data[k])
-
-        # Update ancestors.
-        for i in range(1, self._log + 1):
-            self._update(k >> i)
-
-    def apply_each(self, l: int, r: int, f: F) -> None:
-        """Apply the mapping to each leaves of the specified interval.
-
-        Apply the mapping to each leaves of the specified interval [l, r).
-
-        Args:
-            l (int): Left end of the given interval.
-            r (int): Right end of the given interval.
-            f (F): The value to be acted on the leaves.
-
-        """
-
-        # When invalid interval was given
-        if l >= r:
-            return
-
-        # Move to child.
-        l += self._size
-        r += self._size
-
-        # Propagate pending operator from the root to the leaf
-        # for calculate the production
-        for i in range(self._log, 0, -1):
-            # In the subtree containing the l, when the l is the leftmost node,
-            # don't have to propagate. Because the root of the subtree has all
-            # information of l.
-            if ((l >> i) << i) != l:
-                self._propagate(l >> i)
-            # Same to above.
-            if ((r >> i) << i) != r:
-                self._propagate((r - 1) >> i)
-
-        # Copy the variable for temporary calculation.
-        left: int = l
-        right: int = r
-        # Find all nodes covering the given interval, and apply the mapping to them.
-        while left < right:
-            # If left is right child
-            if left & 1:
-                # Apply the mapping.
-                self._reflect(left, f)
-                # Move to elder brother.
-                left += 1
-
-            # If right is right child
-            if right & 1:
-                # Move to little brother.
-                right -= 1
-                # Apply the mapping.
-                self._reflect(right, f)
-
-            # Move to parent.
-            left >>= 1
-            right >>= 1
-
-        # Update value of the ancestors.
-        for i in range(1, self._log + 1):
-            # In the subtree containing the l, when the l is the leftmost node,
-            # don't have to update. Because the root of the subtree has all
-            # information of l.
-            if ((l >> i) << i) != l:
-                self._update(l >> i)
-            # Same to above.
-            if ((r >> i) << i) != r:
-                self._update(r >> i)
-
-    def _reflect(self, k: int, f: F) -> None:
-        """Recleft the operation on the node.
-
-        Reflect the specified operator f on the node data[k], and if the node is leaf,
-        combine the operator f with lazy[k].
-
-        Args:
-            k (int): The index of the node (0-indexed).
-            f (F): The operator.
-
-        """
-
-        # Reflect the operator on the node.
-        self._data[k] = self._mapping(f, self._data[k])
-
-        # When k is not leaf
-        if k < self._size:
-            # Combine the operator f with lazy[k]
-            self._lazy[k] = self._composition(f, self._lazy[k])
-
-    def _propagate(self, k: int) -> None:
-        """Propagate pending operator to each child.
-
-        Propagate pending operator lazy[k] to each child, and reset lazy[k].
-
-
-        Args:
-            k (int): The index of the node (0-indexed).
-
-        """
-
-        # Propagate operator lazy[k] to left child.
-        self._reflect(2 * k, self._lazy[k])
-        # Propagate operator lazy[k] to right child.
-        self._reflect(2 * k + 1, self._lazy[k])
-
-        # Reset lazy[k]
-        self._lazy[k] = self._id()
 
     def _update(self, k: int) -> None:
         """Update the element.
@@ -337,24 +165,29 @@ class LazySegmentTree(Generic[S, F]):
         """
         self._data[k] = self._op(self._data[2 * k], self._data[2 * k + 1])
 
+    def __len__(self) -> int:
+        """Return the size of tree."""
+        return 2 * self._size
+
+    def __iter__(self) -> Iterator[S]:
+        """Return the leaves iterator corresponding to A"""
+        for d in self._data[self._size : self._size + self._N]:
+            yield d
+
 
 def main():
     N, Q = map(int, input().split())
-    query: List[List[int]] = [list(map(int, input().split())) for i in range(Q)]
+    query = [list(map(int, input().split())) for i in range(Q)]
 
-    seg = LazySegmentTree[int, int](
-        lambda x, y: min(x, y),
-        lambda: 1 << 60,
-        lambda f, s: s if f == -1 else f,
-        lambda f, g: g if f == -1 else f,
-        lambda: -1,
-        [(1 << 31) - 1 for i in range(N)],
+    seg = SegmentTree[int](
+        lambda a, b: min(a, b), lambda: (1 << 31) - 1, [(1 << 31) - 1] * N
     )
-    for com, x, y in query:
-        if com == 0:
-            seg.apply(x, y)
+
+    for t, x, y in query:
+        if t == 0:
+            seg[x] = y
         else:
-            print(seg.prod(x, y + 1))
+            print(seg[x : y + 1])
 
 
 if __name__ == "__main__":
