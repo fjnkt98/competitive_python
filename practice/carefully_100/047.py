@@ -26,29 +26,27 @@ def main():
     N: int = int(input())
     A: List[int] = [int(input()) for i in range(N)]
 
-    dp: List[List[int]] = [[0] * N for i in range(N)]
+    dp: List[List[int]] = [[0 for j in range(2 * N)] for i in range(2 * N)]
 
     if N % 2 == 1:
-        for i in range(N):
-            dp[i][i] = A[i]
+        for i in range(2 * N):
+            dp[i][i] = A[i % N]
 
-    for l in range(1, N):
-        for i in range(N):
-            j: int = i + l
+    for l in range(2, N + 1):
+        for i in range(2 * N + 1 - l):
+            j: int = i + l - 1
 
             if l % 2 == N % 2:
-                if A[i] > A[j % N]:
-                    dp[i][j % N] = dp[(i + 1) % N][j % N]
-                else:
-                    dp[i][j % N] = dp[i][(j - 1) % N]
+                dp[i][j] = max(dp[i + 1][j] + A[i % N], dp[i][j - 1] + A[j % N])
             else:
-                dp[i][j % N] = max(
-                    dp[(i + 1) % N][j % N] + A[i], dp[i][(j - 1) % N] + A[j % N]
-                )
+                if A[i % N] > A[j % N]:
+                    dp[i][j] = dp[i + 1][j]
+                else:
+                    dp[i][j] = dp[i][j - 1]
 
     answer: int = 0
     for i in range(N):
-        answer = max(answer, dp[i][(i + N - 1) % N])
+        answer = max(answer, dp[i][i + N - 1])
 
     print(answer)
 
