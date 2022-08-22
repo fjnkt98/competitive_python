@@ -10,6 +10,7 @@
       "import bisect",
       "import math",
       "",
+      "",
       "def main():",
       "    $0",
       "",
