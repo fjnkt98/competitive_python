@@ -108,9 +108,7 @@ def main():
         x -= 1
         y -= 1
 
-        if x in cycle and y in cycle:
-            print("No")
-        elif uf.is_same(x, y):
+        if uf.is_same(x, y):
             print("Yes")
         else:
             print("No")
