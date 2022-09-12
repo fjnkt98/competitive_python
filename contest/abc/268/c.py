@@ -1,9 +1,4 @@
-from ssl import ALERT_DESCRIPTION_ACCESS_DENIED
 from typing import *
-import collections
-import itertools
-import bisect
-import math
 
 
 def main():
@@ -12,9 +7,9 @@ def main():
 
     C: List[int] = [0] * N
     for i in range(N):
-        C[(P[i] - i + 1) % N] += 1
-        C[(P[i] - i) % N] += 1
-        C[(P[i] - i - 1) % N] += 1
+        C[(N - P[i] + i) % N] += 1
+        C[(N - P[i] + i - 1) % N] += 1
+        C[(N - P[i] + i + 1) % N] += 1
 
     print(max(C))
 
