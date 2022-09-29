@@ -12,13 +12,15 @@ def main():
 
     dp: List[int] = [0 for i in range(1 << N)]
     dp[0] = 1
-    for S in range(1, 1 << N):
+    for S in range(1 << N):
         i: int = bin(S).count("1")
         for j in range(N):
-            if ((S >> j) & 1) == 1 and A[i - 1][j] == 1:
-                dp[S] += dp[S ^ (1 << j)]
+            if ((S >> j) & 1) == 0 and A[i][j] == 1:
+                dp[S | (1 << j)] += dp[S]
         dp[S] %= mod
 
+    # for i, d in enumerate(dp):
+    #     print(bin(i)[2:].zfill(N), d)
     print(dp[(1 << N) - 1])
 
 
