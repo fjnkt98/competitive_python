@@ -31,8 +31,10 @@ def main():
     B: np.ndarray = A[:, basis_indices]
     cn: np.ndarray = c[non_basis_indices]
     cb: np.ndarray = c[basis_indices]
-    xb: np.ndarray = b.copy()
-    xn: np.ndarray = np.zeros(n - m)
+    x: np.ndarray = np.zeros(n)
+    x[basis_indices] = b.copy()
+
+    xb: np.ndarray = x[basis_indices]
     while True:
         # step. 2 被約費用の計算
         b_bar: np.ndarray = np.dot(np.linalg.inv(B), b)
@@ -60,8 +62,8 @@ def main():
         i: int = np.argmin(T)
 
         # step. 5
-        xn[k] = theta
-        xb = b_bar - theta * a_bar
+        x[non_basis_indices[k]] = theta
+        xb = (b_bar - theta * a_bar).copy()
         basis_indices[i], non_basis_indices[k] = non_basis_indices[k], basis_indices[i]
 
         tmp: np.ndarray = N[:, k].copy()
@@ -76,7 +78,6 @@ def main():
         print(basis_indices[i], xb[i])
 
     print(xb)
-    print(xn)
 
 
 if __name__ == "__main__":
