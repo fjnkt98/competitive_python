@@ -11,7 +11,7 @@
       "import math",
       "",
       "",
-      "def main():",
+      "def main() -> None:",
       "    $0",
       "",
       "",
