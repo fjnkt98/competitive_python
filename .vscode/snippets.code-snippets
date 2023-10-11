@@ -989,7 +989,7 @@
       "def compress(A: list[int]) -> list[int]:",
       "    X: list[int] = sorted(set(A))",
       "    D: dict[int, int] = {x: i for i, x in enumerate(X)}",
-      "    return list(map(lambda x: D[x], A))",
+      "    return [D[a] for a in A]",
       ""
     ],
     "description": "compress"
