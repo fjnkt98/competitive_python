@@ -8,7 +8,12 @@
   "editor.formatOnSave": true,
   "eslint.lintTask.enable": true,
   "python.languageServer": "Pylance",
-  "cSpell.words": ["heapify", "ndarray", "setrecursionlimit"],
+  "cSpell.words": [
+    "heapify",
+    "ndarray",
+    "setrecursionlimit",
+    "sortedcontainers"
+  ],
   "editor.codeActionsOnSave": {
     "source.organizeImports": true
   },
