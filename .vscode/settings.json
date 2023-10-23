@@ -9,6 +9,7 @@
   "eslint.lintTask.enable": true,
   "python.languageServer": "Pylance",
   "cSpell.words": [
+    "Fulkerson",
     "heapify",
     "ndarray",
     "setrecursionlimit",
