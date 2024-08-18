@@ -34,6 +34,9 @@ more-itertools==9.0.0
 mpmath==1.2.1
     # via competitive-python
     # via sympy
+mypy==1.11.1
+mypy-extensions==1.0.0
+    # via mypy
 networkx==3.0
     # via competitive-python
 numba==0.57.0
@@ -78,5 +81,7 @@ sympy==1.11.1
     # via competitive-python
 threadpoolctl==3.5.0
     # via scikit-learn
+typing-extensions==4.12.2
+    # via mypy
 z3-solver==4.12.1.0
     # via competitive-python

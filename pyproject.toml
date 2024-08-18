@@ -34,7 +34,8 @@ requires = ["hatchling"]
 
 [tool.rye]
 dev-dependencies = [
-  "ruff>=0.6.1",
+    "ruff>=0.6.1",
+    "mypy>=1.11.1",
 ]
 managed = true
 
@@ -43,6 +44,9 @@ allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/competitive_python"]
+
+[tool.mypy]
+strict = true
 
 [tool.ruff]
 indent-width = 4
