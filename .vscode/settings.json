@@ -11,5 +11,15 @@
   "editor.formatOnSave": true,
   "eslint.lintTask.enable": true,
   "python.languageServer": "Pylance",
-  "cSpell.words": ["heapify", "ndarray", "setrecursionlimit"]
+  "cSpell.words": [
+    "Fulkerson",
+    "heapify",
+    "ndarray",
+    "setrecursionlimit",
+    "sortedcontainers"
+  ],
+  "editor.codeActionsOnSave": {
+    "source.organizeImports": true
+  },
+  "flake8.args": ["--ignore=E741,E501,W503,E203"]
 }
