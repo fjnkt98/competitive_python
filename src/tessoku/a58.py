@@ -20,7 +20,9 @@ class SegmentTree(Generic[S]):
 
     """
 
-    def __init__(self, op: Callable[[S, S], S], e: Callable[[], S], A: list[S]) -> None:
+    def __init__(
+        self, op: Callable[[S, S], S], e: Callable[[], S], A: list[S]
+    ) -> None:
         """Constructor
 
         Args:

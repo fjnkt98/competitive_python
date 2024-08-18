@@ -19,7 +19,9 @@ class CumulativeSum2D:
 
 def main() -> None:
     H, W, N = map(int, input().split())
-    A, B, C, D = map(list, zip(*[list(map(int, input().split())) for i in range(N)]))
+    A, B, C, D = map(
+        list, zip(*[list(map(int, input().split())) for i in range(N)])
+    )
 
     c2d = CumulativeSum2D(H + 1, W + 1)
     for a, b, c, d in zip(A, B, C, D):

@@ -10,10 +10,14 @@ class BinominalCoefficient:
             self._factorial[i] = self._factorial[i - 1] * i % self._mod
             self._inverse_element[i] = (
                 self._mod
-                - self._inverse_element[self._mod % i] * (self._mod // i) % self._mod
+                - self._inverse_element[self._mod % i]
+                * (self._mod // i)
+                % self._mod
             )
             self._inverse_factorial[i] = (
-                self._inverse_factorial[i - 1] * self._inverse_element[i] % self._mod
+                self._inverse_factorial[i - 1]
+                * self._inverse_element[i]
+                % self._mod
             )
 
     def nCr(self, n: int, r: int) -> int:
@@ -22,7 +26,11 @@ class BinominalCoefficient:
 
         return (
             self._factorial[n]
-            * (self._inverse_factorial[r] * self._inverse_factorial[n - r] % self._mod)
+            * (
+                self._inverse_factorial[r]
+                * self._inverse_factorial[n - r]
+                % self._mod
+            )
             % self._mod
         )
 

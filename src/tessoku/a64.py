@@ -61,7 +61,9 @@ class Dijkstra:
                 if self.distance[next_node] > self.distance[node] + weight:
                     self.distance[next_node] = self.distance[node] + weight
                     self.previous[next_node] = node
-                    heapq.heappush(candidate, (self.distance[next_node], next_node))
+                    heapq.heappush(
+                        candidate, (self.distance[next_node], next_node)
+                    )
 
         return (self.distance, self.previous)
 

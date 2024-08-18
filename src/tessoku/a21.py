@@ -10,10 +10,13 @@ def main() -> None:
 
             if i > 0:
                 dp[i][j] = max(
-                    dp[i][j], dp[i - 1][j] + (A[i - 1] if i <= P[i - 1] < j else 0)
+                    dp[i][j],
+                    dp[i - 1][j] + (A[i - 1] if i <= P[i - 1] < j else 0),
                 )
             if j < N:
-                dp[i][j] = max(dp[i][j], dp[i][j + 1] + (A[j] if i <= P[j] < j else 0))
+                dp[i][j] = max(
+                    dp[i][j], dp[i][j + 1] + (A[j] if i <= P[j] < j else 0)
+                )
 
     answer = 0
     for i in range(N):

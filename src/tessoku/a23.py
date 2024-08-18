@@ -1,6 +1,8 @@
 def main() -> None:
     N, M = map(int, input().split())
-    A: list[list[int]] = [[int(v.strip()) for v in input().split()] for i in range(M)]
+    A: list[list[int]] = [
+        [int(v.strip()) for v in input().split()] for i in range(M)
+    ]
     B = [int("".join(map(str, A[i])), 2) for i in range(M)]
 
     dp = [[1 << 60 for j in range(1 << N)] for i in range(M + 1)]

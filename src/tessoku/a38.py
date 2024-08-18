@@ -3,7 +3,9 @@ def main() -> None:
     if N == 0:
         print(24 * D)
         return
-    L, R, H = map(list, zip(*[list(map(int, input().split())) for i in range(N)]))
+    L, R, H = map(
+        list, zip(*[list(map(int, input().split())) for i in range(N)])
+    )
 
     A = [24 for _ in range(D + 1)]
     A[0] = 0

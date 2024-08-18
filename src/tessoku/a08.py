@@ -27,7 +27,9 @@ class CumulativeSum2D:
         """
         Build cumulative sum.
         """
-        for i, j in itertools.product(range(0, self.h + 1), range(0, self.w + 1)):
+        for i, j in itertools.product(
+            range(0, self.h + 1), range(0, self.w + 1)
+        ):
             s = 0
             if i > 0:
                 s += self.body[i - 1][j]
@@ -75,9 +77,13 @@ class CumulativeSum2D:
 
 def main() -> None:
     H, W = map(int, input().split())
-    X: list[list[int]] = [[int(v.strip()) for v in input().split()] for i in range(H)]
+    X: list[list[int]] = [
+        [int(v.strip()) for v in input().split()] for i in range(H)
+    ]
     Q: int = int(input())
-    A, B, C, D = map(list, zip(*[list(map(int, input().split())) for i in range(Q)]))
+    A, B, C, D = map(
+        list, zip(*[list(map(int, input().split())) for i in range(Q)])
+    )
 
     c2d = CumulativeSum2D(H, W)
 
