@@ -47,3 +47,6 @@ packages = ["src/competitive_python"]
 [tool.ruff]
 indent-width = 4
 line-length = 100
+
+[tool.ruff.lint]
+extend-ignore = ["E741"]
