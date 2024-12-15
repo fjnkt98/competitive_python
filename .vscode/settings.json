@@ -14,6 +14,8 @@
     "Fulkerson",
     "heapify",
     "ndarray",
+    "numpy",
+    "scipy",
     "setrecursionlimit",
     "sortedcontainers"
   ]

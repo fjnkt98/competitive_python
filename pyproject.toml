@@ -1,49 +1,35 @@
 [project]
-authors = [
-  {name = "fjnkt98", email = "fjnkt98@gmail.com"},
-]
 dependencies = [
-  "numpy==1.24.1",
-  "scipy==1.10.1",
-  "networkx==3.0",
-  "sympy==1.11.1",
-  "sortedcontainers==2.4.0",
-  "more-itertools==9.0.0",
-  "shapely==2.0.0",
   "bitarray==2.6.2",
-  "pulp==2.7.0",
-  "mpmath==1.2.1",
-  "pandas==1.5.2",
-  "z3-solver==4.12.1.0",
-  "scikit-learn==1.2.0",
-  "ortools==9.5.2237",
-  "setuptools==66.0.0",
   "cppyy==2.4.1",
-  "polars==0.15.15",
+  "more-itertools==9.0.0",
+  "mpmath==1.2.1",
+  "networkx==3.0",
   "numba==0.57.0",
+  "numpy==1.24.1",
+  "ortools==9.5.2237",
+  "pandas==1.5.2",
+  "polars==0.15.15",
+  "pulp==2.7.0",
+  "scikit-learn==1.2.0",
+  "scipy==1.10.1",
+  "setuptools==66.0.0",
+  "shapely==2.0.0",
+  "sortedcontainers==2.4.0",
+  "sympy==1.11.1",
+  "z3-solver==4.12.1.0",
 ]
 description = "Add your description here"
 name = "competitive-python"
 readme = "README.md"
-requires-python = ">= 3.11"
+requires-python = ">=3.11"
 version = "0.1.0"
 
-[build-system]
-build-backend = "hatchling.build"
-requires = ["hatchling"]
-
-[tool.rye]
-dev-dependencies = [
-    "ruff>=0.6.1",
-    "mypy>=1.11.1",
+[dependency-groups]
+dev = [
+  "mypy>=1.13.0",
+  "ruff>=0.8.3",
 ]
-managed = true
-
-[tool.hatch.metadata]
-allow-direct-references = true
-
-[tool.hatch.build.targets.wheel]
-packages = ["src/competitive_python"]
 
 [tool.mypy]
 strict = true
